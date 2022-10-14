@@ -39,9 +39,18 @@ class TokenService {
   async saveBalanceByAddress(walletAddress: string) {
     const tokenResponseDto: TokenResponseDto[] = await this.getBalanceByAddress(walletAddress);
     const json = JSON.stringify({fetchedAt: new Date(), latestBalance: tokenResponseDto});
-    fs.writeFile('./files/tokensOnWallet.json', json, 'utf8', (err) => { 
-      if(err) console.error(err); 
-    });  
+
+    fs.stat('./files', (err, stats) => {
+      if (!stats || !stats.isDirectory()) {
+        fs.mkdir('./files', (err) => {
+          if (err) console.error(err);
+        })
+      }
+
+      fs.writeFile('./files/tokensOnWallet.json', json, 'utf8', (err) => { 
+        if(err) console.error(err); 
+      });
+    })  
     
     setTimeout(async () => {
       await this.saveBalanceByAddress(walletAddress);
